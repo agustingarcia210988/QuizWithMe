@@ -1,0 +1,78 @@
+body{
+	box-sizing: border-box;
+}
+
+button:focus{
+	outline: none !important;
+}
+
+.answerContainer {
+	text-align: center;
+}
+
+.answer {
+	cursor: pointer;
+	white-space: normal;
+	margin: 2px;
+	width: 24.1%;
+	display: inline-block;
+	vertical-align: top;
+}
+
+.answer:first-child{
+	margin-left:0px;
+}
+
+.answer:last-child{
+	margin-right:0px;
+}
+
+ul.center-block.nav.nav-pills {
+	width: 420px;
+}
+
+.stats p {
+    float: left;
+    padding: 0 10px;
+}
+
+div.stats {
+    text-align: center;
+}
+div.statsContainer {
+    display: inline-block;
+}
+
+span.statHeader {
+    font-size: 20px;
+}
+span.statData {
+    font-weight: bold;
+}
+
+.center-block{float:none;display:block;margin-right:auto;margin-left:auto}
+
+
+@media only screen 
+and (max-width : 480px) {
+	.answer{
+		width:100%;
+		margin:4px 0px;
+	}
+	ul.center-block.nav.nav-pills{
+		width:320px;
+	}
+}
+
+@media only screen 
+and (min-width : 481px) 
+and (max-width : 768px) {
+/* Styles */
+	.answer{
+		width:49%;
+		margin:1px;
+	}
+	.answer:first-child,.answer:last-child{
+		margin:1px;
+	}
+}

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="quizApp">
+<head>
+  <meta charset="utf-8">
+
+  <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame 
+       Remove this if you use the .htaccess -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+
+  <title>index</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+  <!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+  <link rel="shortcut icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/main.css">
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.21/angular.min.js"></script>
+  <script type="text/javascript" src="https://code.angularjs.org/1.2.21/angular-resource.min.js"></script>
+  <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+  <script type="text/javascript" src="/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="/js/app.js"></script>
+  <!--<script type="text/javascript" src="/bootstrap.min.js"></script>-->
+</head>
+
+<body id="index" onload="">
+  <div ng-controller="AppController as app" class="container center-block col-xs-11 col-md-8">
+    <header class="row">
+      <h1 class="col-md-12 text-center">Community Trivia</h1>
+    </header>
+    <div class="row">
+		<ul class="center-block nav nav-pills" >
+			<li ng-show="!app.session.loggedIn"><a href=""  ng-click="app.toggleLoginVisibility()" data-toggle="modal" data-target="#loginForm">Login</a></li>
+			<li ng-show="app.session.loggedIn"><a href="" ng-click="app.logout()">Logout {{app.session.username}}</a></li>
+			<li data-toggle="modal" data-target="#loginForm"><a href="" ng-click="app.toggleNewAccountFormVisibility()">New Account</a></li>
+			<li><a href="" data-toggle="modal" data-target="#newQuestionForm">Submit Question</a></li>
+			<li><a href="" data-toggle="modal" data-target="#aboutContent">About</a></li>
+		</ul>
+    </div>
+
+	<div class="stats row">
+		<div class="statsContainer">
+			<p><span class="statHeader">Points</span><br /> <span class="statData">{{app.session.points}}</span></p>
+			<p><span class="statHeader">Answered</span><br /> <span class="statData">{{app.session.questionsAnswered}}</span></p>
+			<p><span class="statHeader">Correct</span><br /> <span class="statData">{{app.session.questionsCorrect}}</span></p>
+		</div>
+	</div>
+	
+    <div id="questionContainer" ng-controller="QuestionController as questionCtrl" class="row">
+    	<p>Time Left</p>
+    	<div class="progress">
+		  <div class="progress-bar" role="progressbar" aria-valuenow="{{(questionCtrl.timeToAnswerQuestion/20)*100}}" aria-valuemin="0" aria-valuemax="100" style="width: {{(questionCtrl.timeToAnswerQuestion/20)*100}}%;">{{questionCtrl.timeToAnswerQuestion}}</div>
+		</div>
+    	<p ng-show="questionCtrl.timeToAnswerQuestion <= 0">Next Question In.. <span>{{questionCtrl.timeToNextQuestion}}</span></p>
+    	<p><i>{{questionCtrl.question}}</i></p>
+    	<p ng-show="questionCtrl.timeToAnswerQuestion === 0 && questionCtrl.correct === true" class="bg-success">Correct!</p>
+    	<p ng-show="questionCtrl.timeToAnswerQuestion === 0 && questionCtrl.correct === false" class="bg-danger">Wrong!</p>
+
+    	<div class="answerContainer">
+			<div class="answer btn btn-primary" ng-class="{
+				'btn-info':questionCtrl.timeToAnswerQuestion !== 0 && (questionCtrl.isSelected($index)), 
+				disabled:questionCtrl.timeToAnswerQuestion === 0 && ($index !== questionCtrl.session.selectedAnswer && $index !== questionCtrl.correctAnswerIndex), 
+				'btn-success': (questionCtrl.timeToAnswerQuestion === 0) && ($index === questionCtrl.correctAnswerIndex),
+				'btn-danger': questionCtrl.answerReport !== undefined && questionCtrl.timeToAnswerQuestion === 0 && (($index === questionCtrl.session.selectedAnswer) && (questionCtrl.session.selectedAnswer !== questionCtrl.correctAnswerIndex))}" ng-repeat="answers in questionCtrl.answers track by $index" ng-click="questionCtrl.submitAnswer($index)" >
+		    	<span ng-show="$index === 0">A. </span>
+		    	<span ng-show="$index === 1">B. </span>
+		    	<span ng-show="$index === 2">C. </span>
+		    	<span ng-show="$index === 3">D. </span>
+				{{answers}}
+			</div>
+		</div>
+
+		<p class="row col-xs-12">submitted by {{questionCtrl.author}}</p>
+    	<div class="row"><!--ng-show="questionCtrl.answerReport !== undefined"-->
+    		
+    	<h3 class="col-xs-12 col-md-6 col-md-offset-6">Poll</h3>
+    		
+    		<div class="col-xs-12 col-md-6">
+		    	<p><strong>{{questionCtrl.answerReport.numGuesses}}</strong> Participants</p>
+		    	<p><strong>{{questionCtrl.answerReport.numCorrect}}</strong> Got it <span class="text-success"><b>right</b></span></p>
+		    	<p><strong>{{questionCtrl.answerReport.numGuesses - questionCtrl.answerReport.numCorrect}}</strong> Got it <span class="text-danger"><b>wrong</b></span></p>
+		    	<p>The question was worth <strong>{{questionCtrl.answerReport.pointValue}} points!</strong></p>
+    		</div>
+    		<div class="col-xs-12 col-md-6">
+				<div class="progress">
+					<div class="progress-bar" ng-class="{'progress-bar-success': questionCtrl.correctAnswerIndex === 0}" role="progressbar" style="width: {{(questionCtrl.answerReport.guessedA / questionCtrl.answerReport.numGuesses) * 100}}%;">A. {{questionCtrl.answerReport.guessedA}}</div>
+				</div>
+				<div class="progress">
+					<div class="progress-bar" ng-class="{'progress-bar-success': questionCtrl.correctAnswerIndex === 1}" role="progressbar" style="width: {{(questionCtrl.answerReport.guessedB / questionCtrl.answerReport.numGuesses) * 100}}%;">B. {{questionCtrl.answerReport.guessedB}}</div>
+				</div>
+				<div class="progress">
+					<div class="progress-bar" ng-class="{'progress-bar-success': questionCtrl.correctAnswerIndex === 2}" role="progressbar" style="width: {{(questionCtrl.answerReport.guessedC / questionCtrl.answerReport.numGuesses) * 100}}%;">C. {{questionCtrl.answerReport.guessedC}}</div>
+				</div>
+				<div class="progress">
+					<div class="progress-bar" ng-class="{'progress-bar-success': questionCtrl.correctAnswerIndex === 3}" role="progressbar" style="width: {{(questionCtrl.answerReport.guessedD / questionCtrl.answerReport.numGuesses) * 100}}%;">D. {{questionCtrl.answerReport.guessedD}}</div>
+				</div>
+    		</div>
+    	</div>
+    </div>
+	<form class="modal fade" novalidate name="loginForm" id="loginForm" ng-controller="LoginController as login" ng-submit="login.processAccountForm()">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" ng-click="app.hideAccountBox()" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+					<h2 ng-show="app.newAccountFormVisible">New User?</h2>
+					<h2 ng-show="app.loginFormVisible">Welcome Back</h2>
+				</div>
+				<div class="modal-body">
+					<p class="text-success" ng-show="login.validation.newAccountSuccess">New Account Registered</p>
+					<p class="text-success" ng-show="login.validation.loginSuccess">Login Successful</p>
+					<div class="form-group" ng-class="{'has-error': (loginForm.username.$error.required || loginForm.username.$error.usernameTaken || loginForm.username.$error.pattern || loginForm.username.$error.usernameNotFound) && login.validation.submitted}">
+						<p class="text-danger" ng-show="loginForm.username.$error.required && login.validation.submitted">Please input a username</p>				
+						<p class="text-danger" ng-show="loginForm.username.$error.usernameTaken">Username already taken</p>
+						<p class="text-danger" ng-show="loginForm.username.$error.pattern">Username can only have alphanumeric characters [123.. abc...]</p>
+						<p class="text-danger" ng-show="loginForm.username.$error.usernameNotFound">We couldn't find the account or the password is wrong, please try to remember</p>
+						<label class="control-label" for="username">username: </label>
+						<input class="form-control" id="username" name="username" ng-model="login.username" ng-pattern="/^[0-9A-Za-z_~-]+$/" required/>
+					</div>
+					<div class="form-group" ng-class="{'has-error': (loginForm.password.$error.required || loginForm.username.$error.usernameNotFound) && login.validation.submitted}" >
+						<p class="text-danger" ng-show="loginForm.password.$error.required && login.validation.submitted">Please input a password</p>
+						<label class="control-label" type="password" for="password">password: </label>
+						<input type="password" class="form-control" id="password" name="password" ng-model="login.password" required/>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<input class="btn btn-success" type="submit" ng-click="login.clickedButton = 'login'" value="login" ng-show="app.loginFormVisible"/>
+					<input class="btn btn-success" type="submit" ng-click="login.clickedButton = 'register'" value="register" ng-show="app.newAccountFormVisible"/>
+				</div>
+			</div>
+		</div>
+	</form>
+	<div ng-show="app.questionFormVisible" ng-controller="NewQuestionController as qCtrl">
+		<question-submit-form></question-submit-form>
+	</div>
+	
+	<div ng-show="app.aboutContentVisible">
+		<about-content></about-content>
+	</div>
+  </div>
+</body>
+</html>
