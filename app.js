@@ -5,6 +5,7 @@
 	, bodyParser = require('body-parser')
 	, server = require('http').createServer(app)
 	, mongoose = require('mongoose')
+	, uriUtil = require('mongodb-uri')
 	, cookieParser = require('cookie-parser')
 	, session = require('express-session')
 	, MongoStore = require('connect-mongo')(session)
@@ -25,13 +26,17 @@
 	/*
 	 * assign Express configurations
 	 */
-	server.listen(process.env.PORT || 5000);
+	var env = process.env.NODE_ENV || 'development';
+	var mongourl = (process.env.NODE_ENV === 'production' ? 'mongodb://heroku_app28994643:lv5ddleuhq05itp4i45lgajs68@ds053218.mongolab.com:53218/heroku_app28994643' : 'mongodb://localhost/quizapp');
+	var port = process.env.PORT || 5000;
+	
+	server.listen(port);
 	app.use(bodyParser.json());
 	app.use('/', express.static(path.resolve('./public')));
 	app.use(cookieParser(sessionKey));
 	app.use(session({
 		  store: new MongoStore({
-		    url: 'mongodb://localhost/quizapp'
+		    url: mongourl
 		  }),
 		  secret: sessionKey
 		}));
@@ -43,7 +48,8 @@
 	/*
 	 * database connection + schemas
 	 */
-	mongoose.connect('mongodb://localhost/quizapp');
+	var mongooseUri = uriUtil.formatMongoose(mongodbUri);
+	mongoose.connect(mongooseUri);
 
 	var AccountSchema = new mongoose.Schema({  
 		username: {type: String, required: true, index: {unique: true}, validate: /([0-9A-Za-z_~-])+/},
