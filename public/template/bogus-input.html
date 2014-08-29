@@ -39,8 +39,10 @@
 					</div>
 				</div>
 				<div class="modal-footer">
+					valid?:{{newQuestionForm.$valid}}
+					{{newQuestionForm}}
 					<input class="btn btn-default" type="button" ng-click="addBogusAnswerField()" value="add more bogus answers"/>
-					<input class="btn btn-success" type="submit" value="submit" ng-click="formSubmitted = true">
+					<input class="btn btn-success" type="submit" value="submit" ng-click="formSubmitted = true" ng-class="{disabled:success===true}">
 					<input class="btn btn-danger pull-left" type="button" ng-click="resetForm()" value="Reset" />
 					<p ng-show="success===true" class="text-success">Your question has been noted. Look out for it during the quiz! Form is reseting...</p>
 					<p ng-show="success===false" class="text-failure">Something went wrong. We weren't able to get your question.. try again later</p>

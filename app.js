@@ -162,6 +162,15 @@
 				console.log('Answer Key Index', answerKey);
 				return finalQuestion;
 			}
+			else{
+				return { question: 'This is a placeholder when there are no questions in the database, go add some questions!',
+					  answers: 
+						   [ '1',
+						     '2',
+						     '3',
+						     '4' ] };
+
+			}
 		};
 		
 		var resetAttributes = function(){

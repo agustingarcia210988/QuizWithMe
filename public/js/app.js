@@ -326,35 +326,37 @@
 					//at this point, with the way the arrays need to be split up in to two due to the X click feature,
 					//we'll need to double check both arrays when there's a change to an index.
 					//redundant, inefficient. But can't think of another easy way.
-					var arrClone = scope.bogusAnswers.slice().concat(scope.additionalBogusAnswers);
-					if(arrClone.indexOf(arrClone.splice(scope.$index, 1)[0]) != -1){
-						//duplicate entry found
-						ctrl.$setValidity('uniqueValues', false);
+					if(elem.attr('name') !== 'answer'){
+						var arrClone = scope.bogusAnswers.slice().concat(scope.additionalBogusAnswers);
+						if(arrClone.indexOf(arrClone.splice(scope.$index, 1)[0]) != -1){
+							//duplicate entry found
+							ctrl.$setValidity('uniqueValues', false);
+						}
+						else{
+							ctrl.$setValidity('uniqueValues', true);
+						}
+						arrClone = scope.additionalBogusAnswers.slice().concat(scope.bogusAnswers);
+						if(arrClone.indexOf(arrClone.splice(scope.$index, 1)[0]) != -1){
+							//duplicate entry found
+							ctrl.$setValidity('uniqueValues', false);
+						}
+						else{
+							ctrl.$setValidity('uniqueValues', true);
+						}
+						
+						//checking bogus answers to answer
+						if(elem.val() === scope.answer){
+							ctrl.$setValidity('notAnswerDuplicate', false);
+						}
+						else{
+							ctrl.$setValidity('notAnswerDuplicate', true);
+						}
 					}
 					else{
-						ctrl.$setValidity('uniqueValues', true);
-					}
-					arrClone = scope.additionalBogusAnswers.slice().concat(scope.bogusAnswers);
-					if(arrClone.indexOf(arrClone.splice(scope.$index, 1)[0]) != -1){
-						//duplicate entry found
-						ctrl.$setValidity('uniqueValues', false);
-					}
-					else{
-						ctrl.$setValidity('uniqueValues', true);
-					}
-					
-					//checking bogus answers to answer
-					if(elem.val() === scope.answer && elem.attr('name') !== 'answer'){
-						ctrl.$setValidity('notAnswerDuplicate', false);
-					}
-					else{
-						ctrl.$setValidity('notAnswerDuplicate', true);
-					}
-					
-					//checking answer to bogus answers
-					if(elem.attr('name') === 'answer'){
+						//checking answer to bogus answers
 						(scope.bogusAnswers.indexOf(elem.val()) !== -1 || scope.additionalBogusAnswers.indexOf(elem.val()) !== -1 ? ctrl.$setValidity('notAnswerDuplicate', false) : ctrl.$setValidity('notAnswerDuplicate', true));
 					}
+					
 					return;
 				});
 			}
