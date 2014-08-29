@@ -26,6 +26,8 @@
 	/*
 	 * assign Express configurations
 	 */
+	console.log(process.env.TEST_VAL);
+	
 	var env = process.env.NODE_ENV || 'development';
 	var mongourl = (process.env.NODE_ENV === 'production' ? 'mongodb://heroku_app28994643:lv5ddleuhq05itp4i45lgajs68@ds053218.mongolab.com:53218/heroku_app28994643' : 'mongodb://localhost/quizapp');
 	var port = process.env.PORT || 5000;
@@ -48,7 +50,7 @@
 	/*
 	 * database connection + schemas
 	 */
-	var mongooseUri = uriUtil.formatMongoose(mongodbUri);
+	var mongooseUri = uriUtil.formatMongoose(mongourl);
 	mongoose.connect(mongooseUri);
 
 	var AccountSchema = new mongoose.Schema({  
@@ -141,23 +143,25 @@
 		});
 		
 		var massageQuestion = function(questionAnswer){
-			var finalQuestion = {};
-			var MAX_BOGUS_QUESTIONS = 3;
-			//did you know that copied arrays are passed by reference?
-			//changing them will update the original array, unless you pass it with .slice() which will pass it by value
-			var copyOfBogusAnswers = questionAnswer.bogusAnswers.slice();
-			finalQuestion.question = questionAnswer.question;
-			finalQuestion.answers = [questionAnswer.answer];
-			for(var i = 0; i < MAX_BOGUS_QUESTIONS; i++){
-				var randomIndex = Math.floor(Math.random() * copyOfBogusAnswers.length);
-				finalQuestion.answers.push(copyOfBogusAnswers[randomIndex]);
-				copyOfBogusAnswers.splice(randomIndex, 1);
+			if(questionAnswer){
+				var finalQuestion = {};
+				var MAX_BOGUS_QUESTIONS = 3;
+				//did you know that copied arrays are passed by reference?
+				//changing them will update the original array, unless you pass it with .slice() which will pass it by value
+				var copyOfBogusAnswers = questionAnswer.bogusAnswers.slice();
+				finalQuestion.question = questionAnswer.question;
+				finalQuestion.answers = [questionAnswer.answer];
+				for(var i = 0; i < MAX_BOGUS_QUESTIONS; i++){
+					var randomIndex = Math.floor(Math.random() * copyOfBogusAnswers.length);
+					finalQuestion.answers.push(copyOfBogusAnswers[randomIndex]);
+					copyOfBogusAnswers.splice(randomIndex, 1);
+				}
+				finalQuestion.answers.sort();
+				answerKey = finalQuestion.answers.indexOf(questionAnswer.answer);
+				
+				console.log('Answer Key Index', answerKey);
+				return finalQuestion;
 			}
-			finalQuestion.answers.sort();
-			answerKey = finalQuestion.answers.indexOf(questionAnswer.answer);
-			
-			console.log('Answer Key Index', answerKey);
-			return finalQuestion;
 		};
 		
 		var resetAttributes = function(){

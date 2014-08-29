@@ -14,7 +14,8 @@
     "mongoose": "~3.8.14",
     "seedrandom": "~2.3.6",
     "socket.io": "~1.0.6",
-    "mongodb": "~1.4.8"
+    "mongodb": "~1.4.8",
+    "mongodb-uri": "^0.9.7"
   },
   "devDependencies": {},
   "scripts": {

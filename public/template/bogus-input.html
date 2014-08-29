@@ -16,7 +16,8 @@
 					<div class="form-group" ng-class="{'has-error': newQuestionForm.answer.$error.required && formSubmitted}">
 						<label class="control-label" for="answer" name="answer">Answer: </label>
 						<span class="text-danger" ng-show="newQuestionForm.answer.$error.required && formSubmitted">Need an answer</span>
-						<input class="form-control" type="text" ng-model="answer" name="answer" maxlength="40" required/>		
+						<p class="text-danger" ng-show="newQuestionForm.answer.$error.notAnswerDuplicate">A bogus answer can't be the same as the real answer</p>
+						<input class="form-control" type="text" ng-model="answer" name="answer" maxlength="40" required unique-values/>		
 					</div>
 					
 					
@@ -25,10 +26,12 @@
 						<p class="text-danger" ng-show="(!bogusAnswers[0] || !bogusAnswers[1] || !bogusAnswers[2]) && formSubmitted">We need at least 3 bogus answers</p>
 						<div class="bogusInputContainer form-group" ng-class="{'has-error': bogusAnswersRepeatForm.bogusAnswer.$error.uniqueValues}" ng-repeat="bogusAnswer in bogusAnswers track by $index"  ng-model="bogusAnswers" ng-form="bogusAnswersRepeatForm">
 							<p class="text-danger" ng-show="bogusAnswersRepeatForm.bogusAnswer.$error.uniqueValues">There can't be two of the same bogus answers</p>
+							<p class="text-danger" ng-show="bogusAnswersRepeatForm.bogusAnswer.$error.notAnswerDuplicate">A bogus answer can't be the same as the real answer</p>
 							<input class="bogusInput form-control" type="text" name="bogusAnswer" ng-model="bogusAnswers[$index]" maxlength="40" required unique-values/>
 						</div>
 						<div class="bogusInputContainer form-group has-feedback" ng-class="{'has-error': additionalBogusAnswersRepeatForm.bogusAnswer.$error.uniqueValues}" ng-repeat="additionalBogusAnswer in additionalBogusAnswers track by $index" ng-model="additionalBogusAnswers" ng-form="additionalBogusAnswersRepeatForm">
 							<p class="text-danger" ng-show="additionalBogusAnswersRepeatForm.bogusAnswer.$error.uniqueValues">There can't be two of the same bogus answers</p>
+							<p class="text-danger" ng-show="additionalBogusAnswersRepeatForm.bogusAnswer.$error.notAnswerDuplicate">A bogus answer can't be the same as the real answer</p>
 							<label class="control-label sr-only" for="bogusAnswer">bogus answer</label>
 							<input class="bogusInput form-control" type="text" name="bogusAnswer" ng-model="additionalBogusAnswers[$index]" required unique-values/>
 							<span class="glyphicon glyphicon-remove form-control-feedback" ng-click="removeExtraBogusAnswer($index)"></span>
