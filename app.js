@@ -110,7 +110,7 @@
 	
 	var refreshQuestion = function(){
 		questionStartTime = Date.now();
-		console.log('starting refreshQuestion, questionStartTime: ', questionStartTime);
+		//console.log('starting refreshQuestion, questionStartTime: ', questionStartTime);
 		var date = new Date();
 		randomSeededFloatOfCurrentMinute = seedrandom(date.getFullYear().toString() 
 			+ date.getMonth().toString() 
@@ -130,15 +130,15 @@
 					}
 					else{
 						currentQuestion = massageQuestion(questionAnswer);
-						console.log('questions answer:', questionAnswer);
-						console.log('current question:', currentQuestion);
+//						console.log('questions answer:', questionAnswer);
+//						console.log('current question:', currentQuestion);
 					}
 				});
 			}
 			else{
 				currentQuestion = massageQuestion(questionAnswer);
-				console.log('questions answer:', questionAnswer);
-				console.log('current question:', currentQuestion);
+//				console.log('questions answer:', questionAnswer);
+//				console.log('current question:', currentQuestion);
 			}
 		});
 		
@@ -159,7 +159,7 @@
 				finalQuestion.answers.sort();
 				answerKey = finalQuestion.answers.indexOf(questionAnswer.answer);
 				
-				console.log('Answer Key Index', answerKey);
+				//console.log('Answer Key Index', answerKey);
 				return finalQuestion;
 			}
 			else{
@@ -238,7 +238,7 @@
 		res.json({correct: false, answerReport: answerReport});
 	});
 	app.get('/questions/check-answer/:answerID', function(req, res){
-		console.log('GET /questions/check-answer/', req.params.answerID, 'hit');
+		//console.log('GET /questions/check-answer/', req.params.answerID, 'hit');
 		answerReport.numGuesses += 1;
 		req.session.questionsAnswered += 1;
 		req.session.answerSubmitted = true;
@@ -272,9 +272,9 @@
             			req.session.points += user.points;
             		}
             	});
-            	console.log("questionsCorrect: " , req.session.questionsCorrect);
+            	//console.log("questionsCorrect: " , req.session.questionsCorrect);
             	var updatedAccount = {points: req.session.points, questionsAnswered: req.session.questionsAnswered, questionsCorrect: req.session.questionsCorrect};
-            	console.log('account to be updated:', req.session.username, 'with these values', updatedAccount);
+            	//console.log('account to be updated:', req.session.username, 'with these values', updatedAccount);
             	AccountModel.update({username: req.session.username}, updatedAccount,function(err, account){
             		console.log('account updated:', account);
             	});
@@ -283,7 +283,7 @@
 		}
 		else{
 			if(req.session.loggedIn === true){
-				console.log('account to be updated:', req.session.username, 'with these values', {questionsAnswered: req.session.questionsAnswered});
+				//console.log('account to be updated:', req.session.username, 'with these values', {questionsAnswered: req.session.questionsAnswered});
 	        	AccountModel.update({username: req.session.username}, {questionsAnswered: req.session.questionsAnswered},function(err, account){
 	        		console.log('account updated:', account);
 	        	});
