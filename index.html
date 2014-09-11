@@ -60,6 +60,7 @@
     	<p ng-show="questionCtrl.timeToAnswerQuestion === 0 && questionCtrl.correct === false" class="bg-danger">Wrong!</p>
 
     	<div class="answerContainer">
+    		<p ng-show="questionCtrl.session.answerSubmitted && questionCtrl.timeToAnswerQuestion !== 0">Waiting for everyone else to answer...</p>
 			<div class="answer btn btn-primary" ng-class="{
 				'btn-info':questionCtrl.timeToAnswerQuestion !== 0 && (questionCtrl.isSelected($index)), 
 				disabled:questionCtrl.timeToAnswerQuestion === 0 && ($index !== questionCtrl.session.selectedAnswer && $index !== questionCtrl.correctAnswerIndex), 
@@ -72,12 +73,16 @@
 				{{answers}}
 			</div>
 		</div>
-
 		<p class="row col-xs-12">submitted by {{questionCtrl.author}}</p>
-    	<div class="row"><!--ng-show="questionCtrl.answerReport !== undefined"-->
-    		
+		<span id="reportContainer" class="pull-right">
+			<a id="reportButton" href="" ng-click="questionCtrl.reportQuestion(questionCtrl.questionID)" ng-show="!questionCtrl.reported" data-toggle="tooltip" data-placement="top" title="Please only use when the question is inaccurate or non-sensical. Do not use solely because you got the answer wrong" tooltip=''>
+				<span class="glyphicon glyphicon-thumbs-down"></span> report question
+			</a>
+			<span ng-show="questionCtrl.reported">thanks for the feedback</span>
+		</span>
+    	
+    	<div class="row">
     	<h3 class="col-xs-12 col-md-6 col-md-offset-6">Poll</h3>
-    		
     		<div class="col-xs-12 col-md-6">
 		    	<p><strong>{{questionCtrl.answerReport.numGuesses}}</strong> Participants</p>
 		    	<p><strong>{{questionCtrl.answerReport.numCorrect}}</strong> Got it <span class="text-success"><b>right</b></span></p>

@@ -165,6 +165,8 @@
 		this.question = "";
 		this.answers = [];
 		this.author = "anonymous";
+		this.questionID = "";
+		this.reported = false;
 		//this.selectedAnswer = this.session.selectedAnswer || undefined;
 		this.correct = undefined;
 		this.correctAnswerIndex = undefined;
@@ -184,6 +186,8 @@
 				that.question = question.question;
 				that.answers = question.answers;
 				that.author = question.author || "anonymous";
+				that.questionID = question.questionID;
+				console.log(question);
 				that.timeToAnswerQuestion = question.timeToAnswerQuestion / 1000;
 				that.timeToNextQuestion = question.timeToNextQuestion / 1000;
 				triggerCountdownTimers();
@@ -197,6 +201,7 @@
 			that.correct = undefined;
 			that.correctAnswerIndex = undefined;
 			that.answerReport = undefined;
+			that.reported = false;
 		};
 		
 		var triggerCountdownTimers = function(){
@@ -232,6 +237,13 @@
 					that.correct = validate.correct;
 				});
 			}
+		};
+		
+		this.reportQuestion = function(questionID){
+			console.log('questionID to report', questionID);
+			//pretty sure I'm abusing the $providers.
+			(new Question.reportQuestion({questionID: questionID})).$save(function(data, headers){});
+			that.reported = true;
 		};
 		
 		var getAnswerReport = function(){
@@ -377,6 +389,16 @@
 			}
 		};
 	});
+	
+	app.directive('tooltip', function(){
+		return{
+			restrict: 'A',
+			link: function(scope, elem, attr){
+				console.log($(elem));
+				$(elem).tooltip();
+			}
+		};
+	});
 
 	app.directive('aboutContent', [
 		  function(){
@@ -424,7 +446,8 @@
 		question.getQuestion = $resource('/questions/current-question');
 		question.getAnswerReport = $resource('/questions/answer-report');
 		question.submitAnswer = $resource('/questions/check-answer/:answerNum');
-		question.submitQuestion = $resource('questions/submit-question/');
+		question.submitQuestion = $resource('/questions/submit-question');
+		question.reportQuestion = $resource('/questions/report-question');
 		return question;
 	}]);
 	

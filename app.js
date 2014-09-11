@@ -15,6 +15,11 @@
 	, clone = require('clone')
 	, SALT_WORK_FACTOR = 10
 	, QUESTION_TIMER_CYCLE = 30000;
+	
+	//use module.exports when exporting objects, arrays, groups of stuff.
+	//use exports when only exporting a single attr
+	//http://www.hacksparrow.com/node-js-exports-vs-module-exports.html
+	module.exports = app;
 
 	//this list of error codes is to be updated with the angular app.
 	//maybe in the future we have an api endpoint to get a list of error codes.
@@ -32,13 +37,21 @@
 	var mongourl = (process.env.NODE_ENV === 'production' ? 'mongodb://heroku_app28994643:lv5ddleuhq05itp4i45lgajs68@ds053218.mongolab.com:53218/heroku_app28994643' : 'mongodb://localhost/quizapp');
 	var port = process.env.PORT || 5000;
 	
-	server.listen(port);
+	//this if check prevents the server from listening if it has been executed from a separate test suite
+	//no parent means its being ran directly
+	//yes parent means its being ran indirectly from a test suite, so don't run it...
+	if(!module.parent){
+		server.listen(port);
+		console.log('express server running on port: %d \r\n in env: %s \r\n using mongo url: %s', port, env, mongourl);
+	}
+	
 	app.use(bodyParser.json());
 	app.use('/', express.static(path.resolve('./public')));
 	app.use(cookieParser(sessionKey));
 	app.use(session({
 		  store: new MongoStore({
-		    url: mongourl
+		    url: mongourl,
+		    auto_reconnect: true
 		  }),
 		  secret: sessionKey
 		}));
@@ -94,11 +107,16 @@
 		bogusAnswers: {type: Array, required: true},
 		answer: {type: String, required: true},
 		author: {type: String, required: true},
-		random: {type: Number, required: true}
+		random: {type: Number, required: true},
+		reports: {type: Number, required: false, 'default': 0}
 	});
 	QuestionSchema.index({ random: 1 });
 	var QuestionModel = mongoose.model('Question', QuestionSchema);
 	
+	
+	QuestionModel.findOne({_id: '53fd0ef96c90a85a35ff3261'}, function(err, one){
+		console.log('one', one);
+	});
 	/*
 	 * minutely question refresh logic
 	 */
@@ -146,6 +164,8 @@
 			if(questionAnswer){
 				var finalQuestion = {};
 				var MAX_BOGUS_QUESTIONS = 3;
+				
+				finalQuestion.questionID = questionAnswer._id;
 				//did you know that copied arrays are passed by reference?
 				//changing them will update the original array, unless you pass it with .slice() which will pass it by value
 				var copyOfBogusAnswers = questionAnswer.bogusAnswers.slice();
@@ -297,7 +317,7 @@
 		answerReport.pointValue = 5 + answerReport.numGuesses - answerReport.numCorrect;
 		req.session.answerSubmitted = undefined;
 		req.session.selectedAnswer = undefined;
-		res.json({correct: req.session.correct, correctAnswerIndex: answerKey, answerReport: answerReport});
+		res.json({correctAnswerIndex: answerKey, answerReport: answerReport});
 	});
 	
 	app.post('/questions/submit-question', function(req, res){
@@ -306,7 +326,8 @@
 			answer: req.body.answer,
 			bogusAnswers: req.body.bogusAnswers,
 			author: req.session.username || 'anonymous',
-			random: Math.random()
+			random: Math.random(),
+			reports: 0
 		});
 		question.save(function(err){
 			if(!err){
@@ -320,38 +341,64 @@
 			}
 		});
 	});
+	app.post('/questions/report-question', function(req, res){
+		QuestionModel.findOne({_id: req.body.questionID}, function(err, question){
+			if(err) return console.error(err);
+			if(question){
+				console.log('adding report to question');
+				question.reports += 1;
+				console.log('question now has', question.reports, 'reports');
+				if(question.reports >= 10){
+					console.log('question _id', question._id, 'reached 10 reports will be removed');
+					question.remove(function(err, question){
+						if(err) return console.error(err);
+						console.log('question has been removed');
+					});
+				}
+				question.save(function(err){
+					if(err) return console.error(err);
+					res.json({success:true});
+				});
+			}
+		});
+	});
 	app.post('/account/new-account', function(req, res){
 		console.log('/account/new-account has been hit');
 		console.log('session before creating the new account', req.session);
-		var newAccount = new AccountModel({
-			username: req.body.username.toLowerCase(),
-			password: req.body.password,
-			points: 0,
-			questionsAnswered: 0,
-			questionsCorrect: 0,
-			questionsSubmitted: 0,
-			joinDate: new Date()
-		});
-		console.log('new account to create', newAccount);
-		newAccount.save(function(err){
-			if(err){
-				var errorObj = {};
-				if(err.code === 11000){
-					errorObj.msg = "Username already exists";
-					errorObj.errorCode = errorCodes.usernameTaken;
+		if(req.body.username && req.body.password){
+			var newAccount = new AccountModel({
+				username: req.body.username.toLowerCase(),
+				password: req.body.password,
+				points: 0,
+				questionsAnswered: 0,
+				questionsCorrect: 0,
+				questionsSubmitted: 0,
+				joinDate: new Date()
+			});
+			console.log('new account to create', newAccount);
+			newAccount.save(function(err){
+				if(err){
+					var errorObj = {};
+					if(err.code === 11000){
+						errorObj.msg = "Username already exists";
+						errorObj.errorCode = errorCodes.usernameTaken;
+					}
+					else{
+						errorObj.msg = err.message;
+					}
+					console.error(err);
+					errorObj.success = false;
+					res.json(errorObj);
 				}
 				else{
-					errorObj.msg = err.message;
+					console.log("/account/new-account/ registration successful " + req.body.username);
+					res.json({success: true});
 				}
-				console.error(err);
-				errorObj.success = false;
-				res.json(errorObj);
-			}
-			else{
-				console.log("/account/new-account/ registration successful " + req.body.username);
-				res.json({success: true});
-			}
-		});
+			});
+		}
+		else{
+			res.json({success: false});
+		}
 	});
 	app.post('/account/login', function(req, res){
 		console.log('/account/login hit');
