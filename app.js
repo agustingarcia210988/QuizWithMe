@@ -116,7 +116,6 @@
 	/*
 	 * questionManager
 	 */
-	//TODO: there's an issue with resetting the answerReport
 	var questionManager = (function(){
 		var that = this;
 		var randomSeededFloatOfCurrentMinute = Math.random();
@@ -204,89 +203,6 @@
 		setInterval(refreshQuestion, QUESTION_TIMER_CYCLE);
 		return this;
 	})();
-//	
-//	var randomSeededFloatOfCurrentMinute = Math.random();
-//	var currentQuestion = {};
-//	var answerReport = {};
-//	var answerKey = 0;
-//	var questionStartTime;
-//	
-//	var refreshQuestion = function(){
-//		questionStartTime = Date.now();
-//		//console.log('starting refreshQuestion, questionStartTime: ', questionStartTime);
-//		var date = new Date();
-//		randomSeededFloatOfCurrentMinute = seedrandom(date.getFullYear().toString() 
-//			+ date.getMonth().toString() 
-//			+ date.getDate().toString() 
-//			+ date.getHours().toString() 
-//			+ date.getMinutes().toString()
-//			+ (parseInt(date.getSeconds() / (QUESTION_TIMER_CYCLE / 1000))).toString())();
-//		
-//		QuestionModel.findOne({random: {$gte: randomSeededFloatOfCurrentMinute}}, function(err, questionAnswer){
-//			if(err){
-//				console.error(err);
-//			}
-//			else if(questionAnswer === null){
-//				QuestionModel.findOne({random: {$lte: randomSeededFloatOfCurrentMinute}}, function(err, questionAnswer){
-//					if(err){
-//						console.error(err);
-//					}
-//					else{
-//						currentQuestion = massageQuestion(questionAnswer);
-////						console.log('questions answer:', questionAnswer);
-////						console.log('current question:', currentQuestion);
-//					}
-//				});
-//			}
-//			else{
-//				currentQuestion = massageQuestion(questionAnswer);
-////				console.log('questions answer:', questionAnswer);
-////				console.log('current question:', currentQuestion);
-//			}
-//		});
-//		
-//		var massageQuestion = function(questionAnswer){
-//			if(questionAnswer){
-//				var finalQuestion = {};
-//				var MAX_BOGUS_QUESTIONS = 3;
-//				
-//				finalQuestion.questionID = questionAnswer._id;
-//				//did you know that copied arrays are passed by reference?
-//				//changing them will update the original array, unless you pass it with .slice() which will pass it by value
-//				var copyOfBogusAnswers = questionAnswer.bogusAnswers.slice();
-//				finalQuestion.question = questionAnswer.question;
-//				finalQuestion.answers = [questionAnswer.answer];
-//				for(var i = 0; i < MAX_BOGUS_QUESTIONS; i++){
-//					var randomIndex = Math.floor(Math.random() * copyOfBogusAnswers.length);
-//					finalQuestion.answers.push(copyOfBogusAnswers[randomIndex]);
-//					copyOfBogusAnswers.splice(randomIndex, 1);
-//				}
-//				finalQuestion.answers.sort();
-//				answerKey = finalQuestion.answers.indexOf(questionAnswer.answer);
-//				
-//				//console.log('Answer Key Index', answerKey);
-//				return finalQuestion;
-//			}
-//			else{
-//				return { question: 'This is a placeholder when there are no questions in the database, go add some questions!',
-//					  answers: 
-//						   [ '1',
-//						     '2',
-//						     '3',
-//						     '4' ] };
-//
-//			}
-//		};
-//		
-//		var resetAttributes = function(){
-//			answerReport = {numGuesses: 0, numCorrect: 0, guessedA: 0, guessedB: 0, guessedC: 0, guessedD: 0};
-//		};
-//		
-//		resetAttributes();
-//	};
-	
-//	refreshQuestion();
-//	setInterval(refreshQuestion, QUESTION_TIMER_CYCLE);
 	
 	/*
 	 * Session Object
