@@ -113,22 +113,21 @@
 	QuestionSchema.index({ random: 1 });
 	var QuestionModel = mongoose.model('Question', QuestionSchema);
 	
-	
-	QuestionModel.findOne({_id: '53fd0ef96c90a85a35ff3261'}, function(err, one){
-		console.log('one', one);
-	});
 	/*
-	 * minutely question refresh logic
+	 * questionManager
 	 */
-	var randomSeededFloatOfCurrentMinute = Math.random();
-	var currentQuestion = {};
-	var answerReport = {};
-	var answerKey = 0;
-	var questionStartTime;
-	
-	var refreshQuestion = function(){
-		questionStartTime = Date.now();
-		//console.log('starting refreshQuestion, questionStartTime: ', questionStartTime);
+	//TODO: there's an issue with resetting the answerReport
+	var questionManager = (function(){
+		var that = this;
+		var randomSeededFloatOfCurrentMinute = Math.random();
+		this.currentQuestion = {};
+		this.answerReport = {};
+		this.answerKey = 0;
+		this.questionStartTime;
+		
+		var refreshQuestion = function(){
+		that.questionStartTime = Date.now();
+		//console.log('starting refreshQuestion, questionStartTime: ', that.questionStartTime);
 		var date = new Date();
 		randomSeededFloatOfCurrentMinute = seedrandom(date.getFullYear().toString() 
 			+ date.getMonth().toString() 
@@ -147,18 +146,20 @@
 						console.error(err);
 					}
 					else{
-						currentQuestion = massageQuestion(questionAnswer);
+						that.currentQuestion = massageQuestion(questionAnswer);
 //						console.log('questions answer:', questionAnswer);
-//						console.log('current question:', currentQuestion);
+//						console.log('current question:', that.currentQuestion);
 					}
 				});
 			}
 			else{
-				currentQuestion = massageQuestion(questionAnswer);
+				that.currentQuestion = massageQuestion(questionAnswer);
 //				console.log('questions answer:', questionAnswer);
-//				console.log('current question:', currentQuestion);
+//				console.log('current question:', that.currentQuestion);
 			}
 		});
+		resetAttributes();
+		};
 		
 		var massageQuestion = function(questionAnswer){
 			if(questionAnswer){
@@ -177,9 +178,9 @@
 					copyOfBogusAnswers.splice(randomIndex, 1);
 				}
 				finalQuestion.answers.sort();
-				answerKey = finalQuestion.answers.indexOf(questionAnswer.answer);
+				that.answerKey = finalQuestion.answers.indexOf(questionAnswer.answer);
 				
-				//console.log('Answer Key Index', answerKey);
+				//console.log('Answer Key Index', that.answerKey);
 				return finalQuestion;
 			}
 			else{
@@ -194,17 +195,103 @@
 		};
 		
 		var resetAttributes = function(){
-			answerReport = {numGuesses: 0, numCorrect: 0, guessedA: 0, guessedB: 0, guessedC: 0, guessedD: 0};
+			that.answerReport = {numGuesses: 0, numCorrect: 0, guessedA: 0, guessedB: 0, guessedC: 0, guessedD: 0};
 		};
 		
+		
 		resetAttributes();
-	};
+		refreshQuestion();
+		setInterval(refreshQuestion, QUESTION_TIMER_CYCLE);
+		return this;
+	})();
+//	
+//	var randomSeededFloatOfCurrentMinute = Math.random();
+//	var currentQuestion = {};
+//	var answerReport = {};
+//	var answerKey = 0;
+//	var questionStartTime;
+//	
+//	var refreshQuestion = function(){
+//		questionStartTime = Date.now();
+//		//console.log('starting refreshQuestion, questionStartTime: ', questionStartTime);
+//		var date = new Date();
+//		randomSeededFloatOfCurrentMinute = seedrandom(date.getFullYear().toString() 
+//			+ date.getMonth().toString() 
+//			+ date.getDate().toString() 
+//			+ date.getHours().toString() 
+//			+ date.getMinutes().toString()
+//			+ (parseInt(date.getSeconds() / (QUESTION_TIMER_CYCLE / 1000))).toString())();
+//		
+//		QuestionModel.findOne({random: {$gte: randomSeededFloatOfCurrentMinute}}, function(err, questionAnswer){
+//			if(err){
+//				console.error(err);
+//			}
+//			else if(questionAnswer === null){
+//				QuestionModel.findOne({random: {$lte: randomSeededFloatOfCurrentMinute}}, function(err, questionAnswer){
+//					if(err){
+//						console.error(err);
+//					}
+//					else{
+//						currentQuestion = massageQuestion(questionAnswer);
+////						console.log('questions answer:', questionAnswer);
+////						console.log('current question:', currentQuestion);
+//					}
+//				});
+//			}
+//			else{
+//				currentQuestion = massageQuestion(questionAnswer);
+////				console.log('questions answer:', questionAnswer);
+////				console.log('current question:', currentQuestion);
+//			}
+//		});
+//		
+//		var massageQuestion = function(questionAnswer){
+//			if(questionAnswer){
+//				var finalQuestion = {};
+//				var MAX_BOGUS_QUESTIONS = 3;
+//				
+//				finalQuestion.questionID = questionAnswer._id;
+//				//did you know that copied arrays are passed by reference?
+//				//changing them will update the original array, unless you pass it with .slice() which will pass it by value
+//				var copyOfBogusAnswers = questionAnswer.bogusAnswers.slice();
+//				finalQuestion.question = questionAnswer.question;
+//				finalQuestion.answers = [questionAnswer.answer];
+//				for(var i = 0; i < MAX_BOGUS_QUESTIONS; i++){
+//					var randomIndex = Math.floor(Math.random() * copyOfBogusAnswers.length);
+//					finalQuestion.answers.push(copyOfBogusAnswers[randomIndex]);
+//					copyOfBogusAnswers.splice(randomIndex, 1);
+//				}
+//				finalQuestion.answers.sort();
+//				answerKey = finalQuestion.answers.indexOf(questionAnswer.answer);
+//				
+//				//console.log('Answer Key Index', answerKey);
+//				return finalQuestion;
+//			}
+//			else{
+//				return { question: 'This is a placeholder when there are no questions in the database, go add some questions!',
+//					  answers: 
+//						   [ '1',
+//						     '2',
+//						     '3',
+//						     '4' ] };
+//
+//			}
+//		};
+//		
+//		var resetAttributes = function(){
+//			answerReport = {numGuesses: 0, numCorrect: 0, guessedA: 0, guessedB: 0, guessedC: 0, guessedD: 0};
+//		};
+//		
+//		resetAttributes();
+//	};
 	
-	refreshQuestion();
-	setInterval(refreshQuestion, QUESTION_TIMER_CYCLE);
+//	refreshQuestion();
+//	setInterval(refreshQuestion, QUESTION_TIMER_CYCLE);
 	
 	/*
 	 * Session Object
+	 * reason why session object was created was to save some database calls...
+	 * even though it may take up slightly more memory, I believe its faster than consulting the database after every question
 	 */
 	
 	var sessionManager = {
@@ -243,45 +330,45 @@
 	});
 	app.get('/questions/current-question', function(req, res){
 		var timeToAnswerQuestion = 0;
-		var timeToNextQuestion = Math.ceil((QUESTION_TIMER_CYCLE - (Date.now() - questionStartTime))/1000) * 1000;;
+		var timeToNextQuestion = Math.ceil((QUESTION_TIMER_CYCLE - (Date.now() - questionManager.questionStartTime))/1000) * 1000;;
 		if(timeToNextQuestion - (QUESTION_TIMER_CYCLE / 3) > 0){
 			timeToAnswerQuestion = timeToNextQuestion - (QUESTION_TIMER_CYCLE / 3);
 		} else{
 			timeToAnswerQuestion = 0;
 		}
-		currentQuestion.timeToAnswerQuestion = timeToAnswerQuestion;
-		currentQuestion.timeToNextQuestion = timeToNextQuestion;
-		res.json(currentQuestion);
+		questionManager.currentQuestion.timeToAnswerQuestion = timeToAnswerQuestion;
+		questionManager.currentQuestion.timeToNextQuestion = timeToNextQuestion;
+		res.json(questionManager.currentQuestion);
 	});
 	app.get('/questions/check-answer/', function(req, res){
 		console.log('GET /questions/check-answer hit');
-		res.json({correct: false, answerReport: answerReport});
+		res.json({correct: false, answerReport: questionManager.answerReport});
 	});
 	app.get('/questions/check-answer/:answerID', function(req, res){
 		//console.log('GET /questions/check-answer/', req.params.answerID, 'hit');
-		answerReport.numGuesses += 1;
+		questionManager.answerReport.numGuesses += 1;
 		req.session.questionsAnswered += 1;
 		req.session.answerSubmitted = true;
 		req.session.selectedAnswer = parseInt(req.params.answerID);
 		switch(parseInt(req.params.answerID)){
 			case 0:
-				answerReport.guessedA += 1;
+				questionManager.answerReport.guessedA += 1;
 				break;
 			case 1:
-				answerReport.guessedB += 1;
+				questionManager.answerReport.guessedB += 1;
 				break;
 			case 2:
-				answerReport.guessedC += 1;
+				questionManager.answerReport.guessedC += 1;
 				break;
 			case 3:
-				answerReport.guessedD += 1;
+				questionManager.answerReport.guessedD += 1;
 				break;
 		}
-		if(parseInt(req.params.answerID) === answerKey){
-			answerReport.numCorrect += 1;
+		if(parseInt(req.params.answerID) === questionManager.answerKey){
+			questionManager.answerReport.numCorrect += 1;
 			req.session.questionsCorrect += 1;
-			answerReport.pointValue = 5 + answerReport.numGuesses - answerReport.numCorrect;
-			req.session.points += answerReport.pointValue;
+			questionManager.answerReport.pointValue = 5 + questionManager.answerReport.numGuesses - questionManager.answerReport.numCorrect;
+			req.session.points += questionManager.answerReport.pointValue;
 			if(req.session.loggedIn === true){
 				//TODO: I think you got to work on your points saving logic.
             	AccountModel.findOne({username: req.session.username}, function(err, user){
@@ -308,16 +395,16 @@
 	        		console.log('account updated:', account);
 	        	});
 			}
-    		answerReport.pointValue = 5 + answerReport.numGuesses - answerReport.numCorrect;
+			questionManager.answerReport.pointValue = 5 + questionManager.answerReport.numGuesses - questionManager.answerReport.numCorrect;
     		res.json({correct:false});
 		}
 	});
 	
 	app.get('/questions/answer-report', function(req, res){
-		answerReport.pointValue = 5 + answerReport.numGuesses - answerReport.numCorrect;
+		questionManager.answerReport.pointValue = 5 + questionManager.answerReport.numGuesses - questionManager.answerReport.numCorrect;
 		req.session.answerSubmitted = undefined;
 		req.session.selectedAnswer = undefined;
-		res.json({correctAnswerIndex: answerKey, answerReport: answerReport});
+		res.json({correctAnswerIndex: questionManager.answerKey, answerReport: questionManager.answerReport});
 	});
 	
 	app.post('/questions/submit-question', function(req, res){
