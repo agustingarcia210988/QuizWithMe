@@ -16,6 +16,12 @@
 	, SALT_WORK_FACTOR = 10
 	, QUESTION_TIMER_CYCLE = 30000;
 	
+    
+//    app.use(function(err, req, res, next){
+//      console.error(err.stack);
+//      res.send(500, 'Our systems fell and are trying to get up sorry!');
+//    });
+    
 	//use module.exports when exporting objects, arrays, groups of stuff.
 	//use exports when only exporting a single attr
 	//http://www.hacksparrow.com/node-js-exports-vs-module-exports.html
@@ -235,6 +241,7 @@
 	 * assign api route connections
 	 */
 	app.get('/', function(req, res){
+        console.log(person.people);
 		//create a new default session if the current one doesn't exist
 		if(req.session.points === undefined){
 			console.log('session is brand new, give it session defaults');
