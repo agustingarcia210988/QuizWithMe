@@ -84,10 +84,16 @@
     	<div class="row">
     	<h3 class="col-xs-12 col-md-6 col-md-offset-6">Poll</h3>
     		<div class="col-xs-12 col-md-6">
-		    	<p><strong>{{questionCtrl.answerReport.numGuesses}}</strong> Participants</p>
-		    	<p><strong>{{questionCtrl.answerReport.numCorrect}}</strong> Got it <span class="text-success"><b>right</b></span></p>
-		    	<p><strong>{{questionCtrl.answerReport.numGuesses - questionCtrl.answerReport.numCorrect}}</strong> Got it <span class="text-danger"><b>wrong</b></span></p>
-		    	<p>The question was worth <strong>{{questionCtrl.answerReport.pointValue}} points!</strong></p>
+		    	<p><strong><span ng-show="!questionCtrl.answerReport.numGuesses">-</span>
+                    <span ng-show="questionCtrl.answerReport.numGuesses">{{questionCtrl.answerReport.numGuesses}}</span>
+                    </strong> Participants</p>
+		    	<p><strong>
+                    <span ng-show="!questionCtrl.answerReport.numCorrect">-</span>
+                    <span ng-show="questionCtrl.answerReport.numCorrect">{{questionCtrl.answerReport.numCorrect}}</span></strong> Got it <span class="text-success"><b>right</b></span></p>
+		    	<p><strong>
+                    <span ng-show="!(questionCtrl.answerReport.numGuesses - questionCtrl.answerReport.numCorrect)">-</span>
+                    <span ng-show="questionCtrl.answerReport.numGuesses - questionCtrl.answerReport.numCorrect">{{questionCtrl.answerReport.numGuesses - questionCtrl.answerReport.numCorrect}}</span></strong> Got it <span class="text-danger"><b>wrong</b></span></p>
+		    	<p>The question was worth <strong><span ng-show="!questionCtrl.answerReport.pointValue">-</span><span ng-show="questionCtrl.answerReport.pointValue">{{questionCtrl.answerReport.pointValue}}</span> points!</strong></p>
     		</div>
     		<div class="col-xs-12 col-md-6">
 				<div class="progress">

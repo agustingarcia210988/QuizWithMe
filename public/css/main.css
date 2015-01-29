@@ -28,7 +28,7 @@ button:focus{
 }
 
 ul.center-block.nav.nav-pills {
-	width: 420px;
+	text-align: center;
 }
 
 .stats p {
@@ -60,7 +60,12 @@ and (max-width : 480px) {
 		margin:4px 0px;
 	}
 	ul.center-block.nav.nav-pills{
-		width:320px;
+		/* width:320px; */
+		text-align: center;
+	}
+	ul.nav li {
+	    display: inline-block;
+	    float: none !important;
 	}
 }
 
