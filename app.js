@@ -9,7 +9,7 @@
 	, cookieParser = require('cookie-parser')
 	, session = require('express-session')
 	, MongoStore = require('connect-mongo')(session)
-	, sessionKey = require('./private/secrets.js').sessionKey
+	, sessionKey = process.env.SESSION_KEY || 'development'
 	, bcrypt = require('bcrypt')
 	, seedrandom = require('seedrandom')
 	, clone = require('clone')
