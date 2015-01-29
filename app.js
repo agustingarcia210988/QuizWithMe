@@ -34,7 +34,7 @@
 	console.log(process.env.TEST_VAL);
 	
 	var env = process.env.NODE_ENV || 'development';
-	var mongourl = (process.env.NODE_ENV === 'production' ? 'mongodb://heroku_app28994643:lv5ddleuhq05itp4i45lgajs68@ds053218.mongolab.com:53218/heroku_app28994643' : 'mongodb://localhost/quizapp');
+	var mongourl = process.env.MONGOLAB_URI || 'mongodb://localhost/quizapp';
 	var port = process.env.PORT || 5000;
 	
 	//this if check prevents the server from listening if it has been executed from a separate test suite
